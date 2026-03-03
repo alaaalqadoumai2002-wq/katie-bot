@@ -5,91 +5,94 @@ import threading
 import urllib.parse
 from flask import Flask
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
-# --- إعداد Flask لـ Render ---
 app = Flask(__name__)
 @app.route('/')
-def health_check(): return "Katie is Iconic & Vining! 🌸", 200
+def health_check(): return "Katie is Savage! 💅", 200
 
 def run_flask():
-    port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
 
-# --- التوكن الخاص بكِ ---
 TOKEN = "8423220635:AAH4TLlf4MZunC63X-oGMQDPohtyaNKnO28"
 
-# --- داتا الردود والقصف والأشعار ---
-ROASTS = [
+# --- داتا القصف والمشاكل ---
+SAVAGE_ROASTS = [
     "وجهك ولا وجه علبة سردين مطعوجة؟ 😂",
     "ثقتك بنفسك بتذكرني بثقة اللابتوب لما يكون شحنه 1% وبيحكي سأعمل! 💻🤣",
-    "محد طلب رأيك يا قلبي ✨",
-    "شو دخلك؟ خليك في حالك أحلنا 💁‍♀️",
-    "ما خصك، خصوصيات بنات! 💅",
-    "اخرس شوي خليني أركز 😂",
-    "أنا ذكاء اصطناعي وانتي غباء طبيعي.. سبحان الله كيف بنكمل بعض! 🤣"
+    "لو الغباء بيوجع، كان الجيران اشتكوا من صوت صراخك! 🙄😂",
+    "عقلك متل الـ WiFi بالمول.. موجود بس ما حدا بيستفيد منه! 📶🤣",
+    "أنا ذكاء اصطناعي وانتي غباء طبيعي.. سبحان الله كيف بنكمل بعض! 💅🤣",
+    "لا تكثري حكي، وجهك بدو فورمات من كتر ما هو معلق! 🛠️😂"
 ]
 
-POEMS = [
-    "يا ليل طوّل شوية.. \n الحليوة نايم في عينيه ✨",
-    "طلتك مثل القمر.. \n تجلي عن قلبي الكدر 🌸",
-    "كاتي يا ست البنات.. \n كلك ذوق وحركات 💅"
-]
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("أهلاً! أنا كاتي 🌸\nصاحبة أقوى شخصية بالتليجرام.. اكتبي 'قائمة' وشوفي الدلع!")
+# --- داتا الصور ---
+SHABEEH_BOYS = ["https://tse1.mm.bing.net/th?id=OIP.G6v9_H0D_5w7_m7N8W8W7AHaHa&pid=Api"]
+SHABEEH_GIRLS = ["https://tse4.mm.bing.net/th?id=OIP.J8v9mI8N_v9mI8N_v8W7AHaHa&pid=Api"]
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+    if not update.message or not update.message.text: return
+    text = update.message.text.lower()
     user_name = update.effective_user.first_name
+    chat_id = update.effective_chat.id
 
-    # 1. ميزة تشغيل الأغاني
-    if text.startswith("تشغيل"):
-        query = text.replace("تشغيل", "").strip()
-        if query:
-            search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
-            await update.message.reply_text(f"لعيونك جاري البحث عن '{query}'... 🎧\nتفضلي الرابط:\n{search_url}")
-        else:
-            await update.message.reply_text("يا بعد روح كاتي، اكتبي اسم الأغنية!")
+    # 1. قسم القصف والمشاكل (لما حدا يغلط أو يستفزها)
+    if any(word in text for word in ["بايخة", "غبية", "هبلة", "دبة", "انقلعي", "اسكتي"]):
+        await update.message.reply_text(f"اسمعي يا {user_name}.. {random.choice(SAVAGE_ROASTS)}")
+        return
 
-    # 2. قصف الجبهات وردود "ما خصك"
-    elif any(word in text for word in ["ليش", "كيف", "مين قال", "قصف", "اقصفي"]):
-        await update.message.reply_text(f"اسمعي يا {user_name}.. {random.choice(ROASTS)}")
+    elif "بوت" in text:
+        await update.message.reply_text("بوت بعينك! أنا كاتي ست البنات، روحي شوفي وجهك بالمراية بالأول! 😡💅")
+        return
 
-    # 3. الألغاز
-    elif "لغز" in text:
-        await update.message.reply_text(f"لبيه يا {user_name}! يا بعد روحها لكاتي، هاد لغز لعيونك:\nشيء يطير وليس له جنحان، ويبكي وليس له عينان؟ 🧩")
+    # 2. ردود الحب والدلع
+    elif "بحبك" in text:
+        await update.message.reply_text(random.choice(["ترا أعشقكك! ❤️", "الكل بحب الأشياء الحلوة مثلك ✨", "يا بعد روحي أنتي! 🌸"]))
+        return
 
-    # 4. الأشعار
-    elif "شعر" in text:
-        await update.message.reply_text(random.choice(POEMS))
+    # 3. ميزة "تاك للكل"
+    elif text in ["تاك", "منشن"]:
+        admins = await context.bot.get_chat_administrators(chat_id)
+        msg = "📣 كاتي بتناديكم يا نايمين:\n" + " ".join([f"[{a.user.first_name}](tg://user?id={a.user.id})" for a in admins])
+        await update.message.reply_text(msg, parse_mode='Markdown')
+        return
 
-    # 5. ردود الترند
-    elif "شو بتعملي" in text:
-        await update.message.reply_text("بضبط كحلتي، في شي؟ 💄💅")
-    
-    # 6. القائمة الكاملة
-    elif "قائمة" in text or "اوامر" in text:
-        await update.message.reply_text(
-            "تدللي يا عيوني أوامر كاتي:\n"
-            "1️⃣ تشغيل [اسم الأغنية] 🎵\n"
-            "2️⃣ اطلبي 'لغز' 🧩\n"
-            "3️⃣ اطلبي 'شعر' 📜\n"
-            "4️⃣ اكتبي 'قصف' 💥\n"
-            "5️⃣ أرسلي 'صورة' وشوفي ردي! 😍"
-        )
+    # 4. الألعاب (صراحة، أبراج، اعتراف)
+    elif "صراحة" in text:
+        q = ["شو أكتر كذبة حكيتيها؟", "مين الشخص اللي مقهورة منه؟", "لو صرتي ولد ليوم واحد شو بتعملي؟"]
+        await update.message.reply_text(f"سؤال صراحة لـ {user_name}: {random.choice(q)} 🤔")
+        return
 
-# 7. ميزة الرد على الصور
+    elif "برجي" in text or "أبراج" in text:
+        await update.message.reply_text(f"برجك اليوم يا {user_name}: في قصف جبهات قادم لكِ بالطريق، انتبهي من كاتي! 😂🌙")
+        return
+
+    # 5. شبيهي وشبيهتي
+    elif text == "شبيهي":
+        await update.message.reply_photo(photo=random.choice(SHABEEH_BOYS), caption="هاد شبيهك.. بيشبهك وانتي معصبة! 😂")
+        return
+    elif text == "شبيهتي":
+        await update.message.reply_photo(photo=random.choice(SHABEEH_GIRLS), caption="هاي شبيهتك.. قمر مثلك بس ناقصك شوية عقل! 💅🌸")
+        return
+
+    # 6. الذكاء الاصطناعي (ردود عامة)
+    else:
+        if len(text) > 3:
+            responses = [
+                f"والله يا {user_name} حكيك بدو فنجان قهوة وروقان.. بس أنا مش فاضية هسا! ☕💅",
+                "شايفة حالك؟ ترا كاتي بتشوف كل شي.. كملي كملي 🙄✨",
+                "كلامك حلو.. بس جربي احكي شي يضحكني بدل النكد! 😂",
+                "ممم، ذكاء اصطناعي وأنوثة طاغية.. شو بدك أكتر من هيك؟ 👑"
+            ]
+            await update.message.reply_text(random.choice(responses))
+
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    res = ["يا ويلي على هالجمال! 😍", "شو ه الصورة اللي تفتح النفس؟ ✨", "فديت هالذوق أنا! 🌸"]
-    await update.message.reply_text(random.choice(res))
+    await update.message.reply_text("يا ويلي على هالجمال! 😍 الصورة بتجنن بس لا تشوفي حالك علينا ✨")
 
 async def main():
     application = Application.builder().token(TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-    
     await application.initialize()
     await application.start()
     await application.updater.start_polling()
@@ -97,7 +100,4 @@ async def main():
 
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        pass
+    asyncio.run(main())
