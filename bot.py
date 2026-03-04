@@ -10,12 +10,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # إعداد Flask عشان Render ما يطفي البوت
 app = Flask(__name__)
 @app.route('/')
-def health_check(): return "Katie is Online & Sassy", 200
+def health_check(): return "Katie is Iconic & Online", 200
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 
-# التوكن الجديد
-TOKEN = "8594835809:AAG-NNdo1lwY0kyfmcsJG-P3W8dPBTi1Mls"
+# التوكن الجديد الصحيح اللي بعتيه هسا
+TOKEN = "8423220635:AAH4TLlf4MZunC63X-oGMQDPohtyaNKnO28"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("هلا والله! كاتي وصلت 😂✨\nأنا البوت اللي رح يطير حواجبكم.. اكتبي 'قائمة' وشوفي الدلع والقصف!")
@@ -50,7 +50,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "ما خصك، حدا طلب رأيك؟ 🙄🤣"
         ]))
 
-    # --- 3. قصف الجبهات والردود القوية ---
+    # --- 3. قصف الجبهات (محد طلب رأيك / اخرس) ---
     elif any(word in user_text for word in ["ليش", "كيف", "مين قال", "شو دخلك"]):
         await update.message.reply_text(random.choice([
             "محد طلب رأيك يا قلبي ✨",
@@ -59,7 +59,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "ما خصك، خصوصيات كاتي!"
         ]))
 
-    # --- 4. الألغاز والشعر ---
+    # --- 4. الألغاز والشعر (يا بعد روحها لكاتي) ---
     elif "لغز" in user_text:
         await update.message.reply_text(f"لبيه يا {user_name}! يا بعد روحها لكاتي، هاد لغز:\nشيء يطير وليس له جنحان، ويبكي وليس له عينان؟")
 
@@ -71,12 +71,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         await update.message.reply_text(random.choice(poems))
 
-    # --- 5. ردود متنوعة (حظك، لو خيروك، كاتي) ---
+    # --- 5. ردود متنوعة (حظك، كاتي) ---
     elif "حظي اليوم" in user_text:
         await update.message.reply_text("حظك نار! رح تلاقي مصاري ببنطلون قديم 💸✨")
-
-    elif "لو خيروك" in user_text:
-        await update.message.reply_text("تاكل بصل ني 🧅 ولا ليمون بقشره 🍋؟")
 
     elif "كاتي" in user_text:
         await update.message.reply_text(random.choice(["عيونها! 😍", "لبيه؟ ✨", "شو بدك؟ 🤣", "أطلق من ينادي!"]))
@@ -84,7 +81,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif "قائمة" in user_text:
         await update.message.reply_text("تدللي يا عيوني:\n1️⃣ تشغيل [اسم أغنية] 🎧\n2️⃣ اطلبي 'لغز' 🧩\n3️⃣ اطلبي 'شعر' 📜\n4️⃣ 'حظي اليوم' ✨\n5️⃣ قولي 'بحبك' أو 'بكرهك' وشوفي الرد 😂")
 
-# ميزة الرد على الصور
+# ميزة الرد على الصور (غزل)
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(random.choice([
         "يا ويلي على هالجمال! 😍",
