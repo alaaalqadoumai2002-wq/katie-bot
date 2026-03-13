@@ -10,14 +10,14 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes
 # --- سيرفر الاستقرار لـ Render ---
 app = Flask(__name__)
 @app.route('/')
-def health_check(): return "Katie is Everything! 👑", 200
+def health_check(): return "Katie Bank & Games Online! 👑", 200
 
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 
 TOKEN = "8423220635:AAH4TLlf4MZunC63X-oGMQDPohtyaNKnO28"
 
-# --- بنك البيانات ---
+# --- قاعدة البيانات ---
 user_data = {} 
 learned_replies = {}
 
@@ -29,35 +29,85 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.effective_user.first_name
     chat_id = update.effective_chat.id
 
-    # تهيئة البيانات
+    # 💰 تهيئة الحساب البنكي (فتح حساب تلقائي)
     if user_id not in user_data:
-        user_data[user_id] = {"balance": 100, "msgs": 0, "partner": None, "is_admin": False, "rank": "عضو جديد"}
+        user_data[user_id] = {
+            "balance": 1000, # رصيد افتتاحي
+            "msgs": 0, 
+            "rank": "عضو جديد",
+            "is_admin": False
+        }
     user_data[user_id]["msgs"] += 1
 
-    # 🛑 1. الحماية (منع الروابط)
+    # 🛑 1. الحماية
     if re.search(r'(https?://[^\s]+|t\.me/[^\s]+)', text):
         if not (user_data[user_id]["is_admin"] or user_id == 6834114420): 
             try: await update.message.delete(); return
             except: pass
 
-    # ✨ 2. الردود العاطفية والكوميدية (اللي كانت مفقودة)
-    if any(word in user_text for word in ["بحبك", "احبك"]):
-        replies = ["وأنا كمان بحبني.. ذوقك عالي! 😂❤️", "تؤبريني شو مهضومة.. وأنا بحبك كتير! ✨", "يا لهوي! ده أنا قلبي هيوقف من الكسوف 😍", "أحبك واجد يا بعد روح كاتي! 🔥"]
-        await update.message.reply_text(random.choice(replies)); return
+    # 👤 2. ايدي (أو اختصار "ا") مع صورة الملف الشخصي
+    if user_text in ["ايدي", "id", "ا"]:
+        d = user_data[user_id]
+        photos = await context.bot.get_user_profile_photos(user_id)
+        info = (f"👤 الاسم: {user_name}\n🆔 الايدي: {user_id}\n🎖️ الرتبة: {d['rank']}\n"
+                f"💬 الرسائل: {d['msgs']}\n💰 رصيدك البنكي: {d['balance']} ريال 💸")
+        
+        if photos.total_count > 0:
+            await update.message.reply_photo(photo=photos.photos[0][-1].file_id, caption=info)
+        else:
+            await update.message.reply_text(info)
+        return
 
-    if any(word in user_text for word in ["بكرهك", "اكرهك"]):
-        replies = ["أحسن! القلوب عند بعضها 😌💅", "منيح اللي قلت، وفّرت عليي تفكير! 😂", "انطمي بس.. أنا اللي ميتة فيكي؟ 🙄", "اشربي مية مالح بلكي تتخللي! 🤣"]
-        await update.message.reply_text(random.choice(replies)); return
+    # 💸 3. نظام الاقتصاد (راتب، استثمار، زرف، بخشيش)
+    if user_text == "راتب":
+        gain = random.randint(200, 500)
+        user_data[user_id]["balance"] += gain
+        await update.message.reply_text(f"💰 تم إضافة {gain} ريال لحسابك البنكي يا {user_name}! رصيدك الآن: {user_data[user_id]['balance']}")
+        return
 
-    if "رايك فيني" in user_text or "رأيك فيني" in user_text:
-        opinions = ["عسل والله، بس لسانك بدو قص! 👅✂️", "أذكى وحدة بالجروب بعدي طبعاً 💅✨", "شايفة إنك Red Flag متحرك بس بنحبك 😂🚩", "طيوبة وقلبك أبيض مثل الثلج 🌸"]
-        await update.message.reply_text(f"رأيي فيكي يا {user_name}: {random.choice(opinions)} ✨"); return
+    if user_text == "بخشيش":
+        tip = random.randint(10, 100)
+        user_data[user_id]["balance"] += tip
+        await update.message.reply_text(f"🎁 كاتي أعطتك بخشيش {tip} ريال يا كريم!")
+        return
 
-    if "فنجان" in user_text or "توقعي" in user_text:
-        predictions = ["شايفة في فنجانك خبر حلو رح يوصلك.. بس انتبهي من العين! 🧿", "في طريقك سفرة قريبة.. غالباً للمطبخ بس معليش 😂☕", "شايفة شخص بيفكر فيكي.. بس غالباً بده منك مصاري! 💸"]
-        await update.message.reply_text(f"يا {user_name}، كاتي قرأت فنجانك وشافت:\n{random.choice(predictions)} ✨"); return
+    if user_text == "استثمار":
+        if user_data[user_id]["balance"] < 100:
+            await update.message.reply_text("لازم يكون معك 100 ريال على الأقل للاستثمار! ❌")
+        else:
+            outcome = random.choice(["win", "lose"])
+            amount = random.randint(50, 200)
+            if outcome == "win":
+                user_data[user_id]["balance"] += amount
+                await update.message.reply_text(f"📈 استثمار ناجح! ربحت {amount} ريال. رصيدك: {user_data[user_id]['balance']}")
+            else:
+                user_data[user_id]["balance"] -= amount
+                await update.message.reply_text(f"📉 للأسف خسر الاستثمار {amount} ريال. رصيدك: {user_data[user_id]['balance']}")
+        return
 
-    # ✨ 3. مرحبا والتعلم
+    if user_text == "زرف" and update.message.reply_to_message:
+        target_id = update.message.reply_to_message.from_user.id
+        target_name = update.message.reply_to_message.from_user.first_name
+        if user_data.get(target_id, {}).get("balance", 0) > 50:
+            stolen = random.randint(10, 50)
+            user_data[target_id]["balance"] -= stolen
+            user_data[user_id]["balance"] += stolen
+            await update.message.reply_text(f"😈 زرفت {stolen} ريال من {target_name} بنجاح!")
+        else:
+            await update.message.reply_text(f"يا حرام {target_name} طفران، ما عنده شي تزرفه! 😂")
+        return
+
+    # ❤️ 4. ثنائي اليوم والألعاب
+    if "ثنائي اليوم" in user_text:
+        members = list(user_data.keys())
+        if len(members) >= 2:
+            couple = random.sample(members, 2)
+            u1 = (await context.bot.get_chat(couple[0])).first_name
+            u2 = (await context.bot.get_chat(couple[1])).first_name
+            await update.message.reply_text(f"👩‍❤️‍👨 ثنائي اليوم: {u1} و {u2}.. مبروك مقدماً! 💍")
+        return
+
+    # ✨ 5. مرحبا والتعلم
     if user_text in ["مرحبا", "مراحب", "هلا"]:
         await update.message.reply_text(f"يا مية هلا بـ {user_name}! نورتي الجروب ✨🌸"); return
 
@@ -68,40 +118,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user_text in learned_replies:
         await update.message.reply_text(learned_replies[user_text]); return
 
-    # ❤️ 4. ثنائي اليوم والألعاب
-    if "ثنائي اليوم" in user_text:
-        members = list(user_data.keys())
-        if len(members) >= 2:
-            couple = random.sample(members, 2)
-            u1 = (await context.bot.get_chat(couple[0])).first_name
-            u2 = (await context.bot.get_chat(couple[1])).first_name
-            await update.message.reply_text(f"👩‍❤️‍👨 ثنائي اليوم: {u1} و {u2}.. لايقين لبعض! 😂💍")
-        else: await update.message.reply_text("تفاعلوا أكثر عشان أختار ثنائي! 😤"); return
-
-    if "لو خيروك" in user_text:
-        opts = ["تاكل بصل 🧅 ولا تعتذر للكل؟", "تترك التليجرام 📱 ولا تترك الأكل 🍔؟"]
-        await update.message.reply_text(f"لو خيروك: {random.choice(opts)} 🤔"); return
-
-    if "كشف الكذب" in user_text:
-        res = random.choice(["صادق ✅", "كذاب وجايب العيد 😂❌", "نص نص 🙊"])
-        await update.message.reply_text(f"جهاز كاتي بيقول إنك: {res}"); return
-
-    # 📊 5. ايدي وقائمة
-    if user_text in ["ايدي", "id"]:
-        d = user_data[user_id]
-        info = (f"👤 الاسم: {user_name}\n🆔 الايدي: {user_id}\n🎖️ الرتبة: {d['rank']}\n💬 الرسائل: {d['msgs']}\n💰 الرصيد: {d['balance']}")
-        await update.message.reply_text(info); return
-
+    # 📜 6. القائمة
     if user_text in ["اوامر", "قائمة"]:
-        menu = ("📜 أوامر كاتي الشاملة:\n"
-                "🎮 ألعاب: (لو خيروك، كشف كذب، عقاب، ثنائي اليوم)\n"
-                "❤️ تفاعل: (بحبك، بكرهك، رأيك فيني، فنجان، نسبة الحب)\n"
-                "📊 بيانات: (ايدي، رصيدي، رتبتي، راتب)\n"
-                "🛡️ إدارة: (طرد، كتم، رفع مدير)\n"
-                "✨ ناديني: (مرحبا، كاتي، بوت)")
+        menu = (
+            "📜 أوامر كاتي البنكية:\n"
+            "💰 اقتصاد: (ا، ايدي، راتب، استثمار، زرف، بخشيش)\n"
+            "🎮 ألعاب: (ثنائي اليوم، لو خيروك، كشف الكذب)\n"
+            "❤️ تفاعل: (بحبك، بكرهك، رأيك فيني)\n"
+            "🛡️ إدارة: (رفع مدير، طرد)"
+        )
         await update.message.reply_text(menu); return
 
-    # ردود كاتي الشخصية
+    # ردود كاتي
     if "بوت" in user_text: await update.message.reply_text("أنا أذكى منك.. انطم! 💅😤")
     elif "كاتي" in user_text: await update.message.reply_text(random.choice(["عيونها! 😍", "لبيه؟ ✨"]))
 
